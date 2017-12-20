@@ -1,0 +1,46 @@
+.text-input {
+    font-size: 18px;
+}
+
+.cover-wrapper {
+    margin: 30px 80px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    &.default {
+        background-image: url('../../assets/imgs/default-avatar.jpg');
+    }
+
+    &::after {
+        display: block;
+        padding-bottom: 100%;
+        content: '';
+    }
+}
+
+ion-navbar.toolbar {
+    position: relative;
+    box-shadow: 0 2px 10px 0 rgba(113, 57, 241, 0.6);
+    z-index: 10000;
+}
+
+.title {
+    font-size: 1.8em;
+    text-align: center;
+}
+
+.description {
+    padding: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    color: #ccc;
+}
+
+.card-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: calc(100vh - 76px);
+    box-shadow: none;
+}

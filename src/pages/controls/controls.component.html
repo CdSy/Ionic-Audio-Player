@@ -1,0 +1,50 @@
+<div>
+    <!-- <input type="range" #seeker min="0" 
+           [max]="100" 
+           step="any" [value]="state.position" 
+           (change)="controlProgressBar(seeker.value)"> -->
+    <div class="time-wrapper">
+        <div class="start">{{ state.elapsed | timeformat }}</div>
+        <ion-range [(ngModel)]="state.position" color="secondary" min="0" max="100"
+            pin="false" class="progress-bar"
+            (ionChange)="changeHandler($event.value)"
+            (ionFocus)="clickHandler(true)"
+            (ionBlur)="clickHandler(false)">
+        </ion-range>
+        <div class="end">{{ (state.total - state.elapsed) | timeformat }}</div>
+    </div>
+    <div class="controls-wrapper">
+        <button (tap)="repeatSwitch()" class="control small" 
+                [ngClass]="{'active': state.repeat}" ion-button icon-only>
+            <ion-icon name="repeat"></ion-icon>
+        </button>
+        <button #backward class="control" ion-button icon-only>
+            <ion-icon name="skip-backward"></ion-icon>
+            <!-- <ion-icon name="fastforward"></ion-icon> -->
+            <!-- <ion-icon name="volume-down"></ion-icon>
+            <ion-icon name="volume-mute"></ion-icon>
+            <ion-icon name="volume-off"></ion-icon>
+            <ion-icon name="volume-up"></ion-icon>
+            <ion-icon name="repeat"></ion-icon>
+    
+            <ion-icon name="list-box"></ion-icon> -->
+        </button>
+        <button (tap)="togglePlay()" class="control large" ion-button icon-only>
+            <ion-icon name="pause" *ngIf="state.playStatus === 'playing'"></ion-icon>
+            <ion-icon name="play" *ngIf="state.playStatus === 'stopped'"></ion-icon>
+        </button>
+        <button #forward class="control" ion-button icon-only>
+            <ion-icon name="skip-forward"></ion-icon>
+        </button>
+        <button (tap)="randomSwitch()" class="control small" 
+                [ngClass]="{'active': state.random}" ion-button icon-only>
+            <ion-icon name="shuffle"></ion-icon>
+        </button>
+    </div>
+    <div class="volume">
+        <ion-range [(ngModel)]="state.volume" min="0" max="100"
+            pin="true" class="progress-bar"
+            (ionChange)="changeVolume($event.value)">
+        </ion-range>
+    </div>
+</div>

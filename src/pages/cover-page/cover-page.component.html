@@ -1,0 +1,30 @@
+<!-- <ion-header>
+    <ion-navbar>
+      <ion-input type="text" placeholder="Search" [(ngModel)]="searchInput" start></ion-input>
+    
+      <ion-buttons end>
+        <button ion-button icon-only round detail-none (click)="searchTracks()">
+          <ion-icon name="search"></ion-icon>
+        </button>
+      </ion-buttons>
+    </ion-navbar>
+</ion-header> -->
+<ion-content>
+    <ion-card class="card-wrapper" (swipe)="goToList($event)">
+        <!-- <div class="cover-wrapper" 
+             [ngStyle]="{'background-image': 'url(' + currentTrack + ')'}"
+             *ngIf="currentTrack">
+        </div> -->
+        <div class="cover-wrapper default"></div>
+        <div class="title" *ngIf="state.currentTrack">{{ state.name }}</div>
+        <!-- <div class="description">{{ state.currentTrack.genre }}</div> -->
+        <controls-component end></controls-component>
+    </ion-card>
+</ion-content>
+<!-- <ion-footer>
+    <ion-toolbar>
+        <button (tap)="goToList()" ion-button icon-only>
+            <ion-icon name="list-box"></ion-icon>
+        </button>
+    </ion-toolbar>
+</ion-footer> -->

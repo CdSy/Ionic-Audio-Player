@@ -1,0 +1,25 @@
+<!-- <ion-header>
+    <ion-navbar class="track-list-header">
+        <ion-title>Track list</ion-title>
+    </ion-navbar>
+</ion-header> -->
+<ion-content>
+    <ion-scroll class="track-list" scrollY="true">
+        <ion-list *ngIf="tracks.data" (swipe)="goBack($event)">
+            <button class="track" 
+                    *ngFor="let track of tracks.data" 
+                    [ngClass]="{'active': isActive(track)}"
+                    ion-item (click)="playTrack(track)">
+                <!-- <ion-thumbnail item-start *ngIf="track.artwork_url">
+                    <img [src]="track.artwork_url">
+                </ion-thumbnail> -->
+                <ion-thumbnail item-start *ngIf="!track.artwork_url">
+                    <div class="default-cover"></div>
+                </ion-thumbnail>
+                <h2>{{ track.name }}</h2>
+                <!-- <p>{{ track.description }}</p> -->
+                <ion-note item-end>{{ (track.duration * 1000) | timeformat }}</ion-note>
+            </button>
+        </ion-list>
+    </ion-scroll>
+</ion-content>

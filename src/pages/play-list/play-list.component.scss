@@ -1,0 +1,43 @@
+.default-cover {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image: url('../../assets/imgs/default-avatar.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.track ion-thumbnail {
+    position: relative;
+}
+
+.track-list {
+    height: 100%;
+
+    .scroll-content {
+        padding-top: 15px;
+        padding-bottom: 60px;
+        background-color: #fff;
+
+        .list-ios > .item-block:first-child {
+            border-top: none;
+        }
+
+        .list-ios > .item-block:last-child {
+            border-bottom: none;
+        }
+    }
+}
+
+.track.active {
+    .item-inner {
+        border-bottom: 2px solid #6497d6;
+    }
+}
+
+.track-list-header {
+    padding: 10px;
+}
