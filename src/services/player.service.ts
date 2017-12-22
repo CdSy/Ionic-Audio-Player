@@ -61,14 +61,14 @@ export class PlayerService {
 
     this.scanDir.checkDirectory(filterMp3)
       .then((result) => {
-        this.sortOnAlbum(result);
-        
-        this.createAudioTracks(flatMap(result), () => {
+        this.createAudioTracks(flatMap(result)).then((result) => {
+          this.tracks.data = result;
           this.state.currentTrack = this.tracks.data[this.state.currentIndex].audio;
           this.state.duration = this.tracks.data[this.state.currentIndex].duration;
           this.state.name = this.tracks.data[this.state.currentIndex].name;
           this.state.total = this.state.duration * 1000;
 
+          this.sortOnAlbum(this.tracks.data);
           this.subscribeOnTrack();
         });
       })
@@ -79,17 +79,14 @@ export class PlayerService {
     const albums = {};
 
     tracks.forEach((file) => {
-      console.log(file.getParent((res) => console.log(res)));
-      file.getParent((res) => {
-        const name = res.name;
-        const key = name.replace(/^\s+/g, '');
+      const name = file.parent;
+      const key = name.replace(/^\s+/g, '');
 
-        if (!albums[key]) {
-          albums[key] = {name: name, tracks: [].push(file)};
-        } else {
-          albums[key].tracks.push(file);
-        }
-      });
+      if (!albums[key]) {
+        albums[key] = {name: name, tracks: [file]};
+      } else {
+        albums[key].tracks.push(file);
+      }
     });
 
     this.tracks.albums = Object.keys(albums).map((key) => albums[key]);
@@ -108,32 +105,34 @@ export class PlayerService {
     });
   }
 
-  private createAudioTracks(srcElements, callback) {
-    srcElements.forEach((element, index) => {
-      const track = {audio: null, duration: 0, name: ''};
-      track.audio = this.media.create(element.nativeURL);
-      track.audio.setVolume(0);
-
-      //Костыли. Не корректно работает плагин кордовы. Если не воспроизвести файл, то возвращается длительность === -1
-      setTimeout(() => {
-        track.audio.play();
-        track.audio.stop();
-        track.audio.release();
-
-        setTimeout(() => {
-          this.ngZone.run(() => {
-            track.duration = ~~(track.audio.getDuration());
-            track.name = element.name;
-            track.audio.setVolume(1);
-            this.tracks.data.push(track);
+  private createAudioTracks(srcElements) {
+    return Promise.all(srcElements.map((element) => {
+      return new Promise ((resolve) => {
+        const track = {audio: null, duration: 0, name: '', parent: ''};
+        track.audio = this.media.create(element.nativeURL);
+        track.audio.setVolume(0);
   
-            if (index === srcElements.length - 1) {
-              callback();
-            }
-          });
-        }, 1);
-      },1);
-    });
+        //Костыли. Не корректно работает плагин кордовы. Если не воспроизвести файл, то возвращается длительность === -1
+        setTimeout(() => {
+          track.audio.play();
+          track.audio.stop();
+          track.audio.release();
+  
+          setTimeout(() => {
+            this.ngZone.run(() => {
+              track.duration = ~~(track.audio.getDuration());
+              track.name = element.name;
+              
+              element.getParent((parent) => {
+                track.parent = parent.name;
+                track.audio.setVolume(1);
+                resolve(track);
+              });
+            });
+          }, 1);
+        },1);
+      });
+    }));
   }
 
   togglePlay(){

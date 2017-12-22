@@ -7,7 +7,7 @@ import { NavController } from 'ionic-angular';
   selector: 'play-list',
   templateUrl: 'play-list.component.html'
 })
-export class PlayList implements OnInit {
+export class Albums implements OnInit {
   tracks: { data: Track[] };
   private state = this.playerService.state;
 
@@ -15,23 +15,5 @@ export class PlayList implements OnInit {
 
   ngOnInit() {
     this.tracks = this.playerService.tracks;
-  }
-
-  playTrack(track) {
-    this.playerService.playTrack(track);
-  }
-
-  goBack(event) {
-    if (event.deltaX > 0) {
-      this.navCtrl.pop();
-    }
-  }
-
-  isActive(track) {
-    return this.state.currentTrack === track.audio;
-  }
-
-  onTrackFinished(event) {
-    console.log('track is finished');
   }
 }
