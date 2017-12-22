@@ -1,61 +1,41 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Track } from './track.interface';
-import { PlayerService } from './player.service';
-
-const httpOptions = {
-  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-};
+import { File } from '@ionic-native/file';
+import { FilePath } from '@ionic-native/file-path';
 
 @Injectable()
 export class SearchService {
-  private client_id = '2f98992c40b8edf17423d93bda2e04ab';
+  // private directories = ['Download', 'Music'];
+  private directories = ['www/assets/audio'];
 
-  constructor(private http: HttpClient, private playerService: PlayerService) { }
-
-  // searchTracks(searchParams) {
-  //   return this.http.get<Track[]>(`https://api.soundcloud.com/tracks?client_id=${this.client_id}&q=${searchParams}&limit=50&filter=public`)
-  //     .pipe(
-  //       tap(tracks => this.log(`fetched tracks`, tracks))
-  //     ).subscribe(tracks => {
-  //       this.playerService.setTracks(this.normalizeData(tracks));
-  //     });
-  // }
-
-  // private normalizeData(array) {
-  //   return array.filter((track) => {
-  //     return track.downloadable === true;
-  //   }).map((track) => {
-  //     const normEl = {preload: {}};
-
-  //     ({
-  //       download_url: normEl.src, 
-  //       title: normEl.title,
-  //       duration: normEl.preload.duration,
-  //       description: normEl.description, 
-  //       genre: normEl.genre, 
-  //       artwork_url: normEl.artwork_url, 
-  //       likes_count: normEl.likes_count
-  //     } = track);
-
-  //     normEl.src = this.prepareUrl(normEl.download_url);
-      
-  //     console.log(normEl);
-  //     return normEl;
-  //   });
-  // }
-
-  prepareUrl(url) {
-    const str = url.replace( /stream/g, 'download');
-
-    return `${str}?client_id=${this.client_id}`
+  constructor(private filePath: FilePath, private fileModule: File) {
+    this.checkDirectory = this.checkDirectory.bind(this);
   }
 
-  private handleError() {
-    console.error('error');
-  }
+  checkDirectory(filterFn): Promise<any[]> {
+    // this.fileModule.applicationDirectory
+    // this.fileModule.externalRootDirectory
 
-  private log(message: string, tracks) {
-    console.log('SearchService: ' + message, tracks);
+    const workMyCollection = (dir) => {
+      return this.fileModule.listDir(this.fileModule.applicationDirectory, dir)
+        .then((result) => {
+          return Promise.all(result.map(function(file) {
+            if(file.isDirectory === true && file.name !='.' && file.name !='..') {
+              return workMyCollection(file.fullPath.slice(1));
+            } else if (file.isFile === true) {
+              return filterFn(file.name) ? file : '';
+            }
+          }))
+          .then((result) => {
+            return result.filter(function(f) {
+              return !!f;
+            });
+          });
+        })
+        .catch((err) => console.log(err));
+    };
+
+    return Promise.all(this.directories.map(function(path) {
+            return workMyCollection(path);
+           }));
   }
 }

@@ -3,10 +3,16 @@ import { Track } from './track.interface';
 import { File } from '@ionic-native/file';
 import { Media, MediaObject } from '@ionic-native/media';
 import { FilePath } from '@ionic-native/file-path';
+import { SearchService } from './search.service';
 
 @Injectable()
 export class PlayerService {
-  public tracks = {data: []};
+  public tracks = {
+    data: [],
+    directories: [],
+    albums: [],
+    artists: []
+  };
   private timer: any;
   public state = {
     currentTrack: <MediaObject>{},
@@ -26,7 +32,8 @@ export class PlayerService {
   constructor(private filePath: FilePath, 
               private file: File, 
               private media: Media,
-              private ngZone: NgZone) 
+              private ngZone: NgZone,
+              private scanDir: SearchService) 
   {
     this.togglePlay = this.togglePlay.bind(this);
     this.backward = this.backward.bind(this);
@@ -44,10 +51,19 @@ export class PlayerService {
       return;
     }
 
-    return this.file.listDir(this.file.applicationDirectory, 'www/assets/audio/')
-      .then(elements => {
-        console.log('files found', elements);
-        this.createAudioTracks(elements, () => {
+    const filterMp3 = (str) => {
+      return /(.mp3)$/g.test(str);
+    }
+
+    const flatMap = list => list.reduce(
+      (a, b) => a.concat(Array.isArray(b) ? flatMap(b) : b), []
+    );
+
+    this.scanDir.checkDirectory(filterMp3)
+      .then((result) => {
+        this.sortOnAlbum(result);
+        
+        this.createAudioTracks(flatMap(result), () => {
           this.state.currentTrack = this.tracks.data[this.state.currentIndex].audio;
           this.state.duration = this.tracks.data[this.state.currentIndex].duration;
           this.state.name = this.tracks.data[this.state.currentIndex].name;
@@ -59,13 +75,31 @@ export class PlayerService {
       .catch(err => 'Directory doesn\'t exists');
   }
 
+  private sortOnAlbum(tracks) {
+    const albums = {};
+
+    tracks.forEach((file) => {
+      console.log(file.getParent((res) => console.log(res)));
+      file.getParent((res) => {
+        const name = res.name;
+        const key = name.replace(/^\s+/g, '');
+
+        if (!albums[key]) {
+          albums[key] = {name: name, tracks: [].push(file)};
+        } else {
+          albums[key].tracks.push(file);
+        }
+      });
+    });
+
+    this.tracks.albums = Object.keys(albums).map((key) => albums[key]);
+    console.log(this.tracks.albums);
+  }
+
   private subscribeOnTrack() {
     this.state.currentTrack.onStatusUpdate.subscribe(status => {
-      console.log('status', status);
-
       if (status === this.media.MEDIA_STOPPED) {
         this.stopTimer();
-        console.log('stop', this.state.completed);
 
         if (this.state.completed === true) {
           this.forward();
@@ -139,11 +173,11 @@ export class PlayerService {
       if (this.state.duration === undefined) {
         let duration: number = this.state.currentTrack.getDuration();
         (duration > 0) && (this.state.duration = ~~(this.state.currentTrack.getDuration()));
-      }  
-      
+      }
+
       this.state.currentTrack.getCurrentPosition()
-        .then((position) => 
-          this.ngZone.run(()=>{
+        .then((position) => {
+          this.ngZone.run(()=> {
             if (position > -1) {
               this.state.position = position >= 0 ? Math.ceil((~~(position) / this.state.duration) * 100) : 0;
               this.state.elapsed = ~~(position * 1000);
@@ -157,8 +191,9 @@ export class PlayerService {
                 this.timer = setTimeout(() => callback(), 1000);
               }
             }
-          }));
-    }
+          });
+        });
+    };
 
     this.timer = setTimeout(() => callback(), 1);
   }
@@ -285,7 +320,7 @@ export class PlayerService {
   }
 
   repeatSwitch() {
-    this.state.repeat = !this.state.random;
+    this.state.repeat = !this.state.repeat;
   }
 
   changeVolume() {
