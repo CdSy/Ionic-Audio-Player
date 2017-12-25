@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { File } from '@ionic-native/file';
-import { FilePath } from '@ionic-native/file-path';
 
 @Injectable()
 export class SearchService {
-  // private directories = ['Download', 'Music'];
-  private directories = ['www/assets/audio'];
+  private directories = ['Download', 'Music'];
+  // private directories = ['www/assets/audio'];
 
-  constructor(private filePath: FilePath, private fileModule: File) {
+  constructor(private fileModule: File) {
     this.checkDirectory = this.checkDirectory.bind(this);
   }
 
@@ -16,7 +15,7 @@ export class SearchService {
     // this.fileModule.externalRootDirectory
 
     const workMyCollection = (dir) => {
-      return this.fileModule.listDir(this.fileModule.applicationDirectory, dir)
+      return this.fileModule.listDir(this.fileModule.externalRootDirectory, dir)
         .then((result) => {
           return Promise.all(result.map(function(file) {
             if(file.isDirectory === true && file.name !='.' && file.name !='..') {

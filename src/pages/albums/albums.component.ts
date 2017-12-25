@@ -4,8 +4,8 @@ import { Track } from '../../services/track.interface';
 import { NavController } from 'ionic-angular';
 
 @Component({
-  selector: 'play-list',
-  templateUrl: 'play-list.component.html'
+  selector: 'albums-list',
+  templateUrl: 'albums.component.html'
 })
 export class Albums implements OnInit {
   tracks: { data: Track[] };
