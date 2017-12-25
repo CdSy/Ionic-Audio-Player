@@ -26,9 +26,12 @@ export class PlayerService {
     playStatus: 'stopped'
   };
 
-  constructor(private media: Media,
+  constructor(private filePath: FilePath, 
+              private file: File, 
+              private media: Media,
               private ngZone: NgZone,
-              private scanDir: SearchService) {
+              private scanDir: SearchService) 
+  {
     this.togglePlay = this.togglePlay.bind(this);
     this.backward = this.backward.bind(this);
     this.forward = this.forward.bind(this);
