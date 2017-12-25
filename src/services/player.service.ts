@@ -1,8 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Track } from './track.interface';
-import { File } from '@ionic-native/file';
 import { Media, MediaObject } from '@ionic-native/media';
-import { FilePath } from '@ionic-native/file-path';
 import { SearchService } from './search.service';
 
 @Injectable()
@@ -29,12 +26,9 @@ export class PlayerService {
     playStatus: 'stopped'
   };
 
-  constructor(private filePath: FilePath, 
-              private file: File, 
-              private media: Media,
+  constructor(private media: Media,
               private ngZone: NgZone,
-              private scanDir: SearchService) 
-  {
+              private scanDir: SearchService) {
     this.togglePlay = this.togglePlay.bind(this);
     this.backward = this.backward.bind(this);
     this.forward = this.forward.bind(this);
@@ -51,7 +45,7 @@ export class PlayerService {
       return;
     }
 
-    const filterMp3 = (str) => {
+    const filterMp3 = str => {
       return /(.mp3)$/g.test(str);
     }
 
@@ -119,15 +113,13 @@ export class PlayerService {
           track.audio.release();
   
           setTimeout(() => {
-            this.ngZone.run(() => {
-              track.duration = ~~(track.audio.getDuration());
-              track.name = element.name;
-              
-              element.getParent((parent) => {
-                track.parent = parent.name;
-                track.audio.setVolume(1);
-                resolve(track);
-              });
+            track.duration = ~~(track.audio.getDuration());
+            track.name = element.name;
+            
+            element.getParent((parent) => {
+              track.parent = parent.name;
+              track.audio.setVolume(1);
+              resolve(track);
             });
           }, 1);
         },1);
