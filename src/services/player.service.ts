@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Media, MediaObject } from '@ionic-native/media';
 import { SearchService } from './search.service';
+import 'jsmediatags/dist/jsmediatags.js';
 
 @Injectable()
 export class PlayerService {
@@ -66,7 +67,7 @@ export class PlayerService {
           this.subscribeOnTrack();
         });
       })
-      .catch(err => 'Directory doesn\'t exists');
+      .catch(err => console.log(err.message));
   }
 
   private sortOnAlbum(tracks) {

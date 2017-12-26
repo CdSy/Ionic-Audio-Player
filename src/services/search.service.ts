@@ -3,8 +3,8 @@ import { File } from '@ionic-native/file';
 
 @Injectable()
 export class SearchService {
-  private directories = ['Download', 'Music'];
-  // private directories = ['www/assets/audio'];
+  // private directories = ['Download', 'Music'];
+  private directories = ['www/assets/audio'];
 
   constructor(private fileModule: File) {
     this.checkDirectory = this.checkDirectory.bind(this);
@@ -15,7 +15,7 @@ export class SearchService {
     // this.fileModule.externalRootDirectory
 
     const workMyCollection = (dir) => {
-      return this.fileModule.listDir(this.fileModule.externalRootDirectory, dir)
+      return this.fileModule.listDir(this.fileModule.applicationDirectory, dir)
         .then((result) => {
           return Promise.all(result.map(function(file) {
             if(file.isDirectory === true && file.name !='.' && file.name !='..') {
@@ -35,6 +35,13 @@ export class SearchService {
 
     return Promise.all(this.directories.map(function(path) {
             return workMyCollection(path);
-           }));
+           }))
+           .then((res) => {
+             if (!res[0]) {
+               throw new Error('Tracks not found');
+             } else {
+               return res;
+             }
+           });
   }
 }
